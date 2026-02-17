@@ -10,7 +10,7 @@ import { BlurView } from "expo-blur";
 import { router, Stack } from "expo-router";
 import { Animated } from "react-native";
 import { useRef, useEffect } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const hints = [
@@ -20,7 +20,7 @@ export default function HomeScreen() {
   ];
   const hint = hints[Math.floor(Math.random() * hints.length)];
   const fade = useRef(new Animated.Value(0)).current;
-
+const insets = useSafeAreaInsets();
   useEffect(() => {
     Animated.timing(fade, {
       toValue: 1,
@@ -33,14 +33,13 @@ export default function HomeScreen() {
     <>
       <View style={styles.container}>
         <TouchableOpacity
-          style={styles.profileButton}
+          style={[styles.profileButton,{top:insets.top+10}]}
           onPress={() => router.push("/profile")}
         >
-          
-            <Ionicons name="person-circle-outline" size={38} color="#1F2937" />
-            
-            
-        
+          <Image
+            source={require("../../assets/images/icons/profile.png")}
+            style={styles.profileImage}
+          />
         </TouchableOpacity>
         <View style={styles.blobTop} />
         <View style={styles.blobBottom} />
@@ -118,7 +117,7 @@ const styles = StyleSheet.create({
   },
   profileButton: {
     position: "absolute",
-    top: 14,
+    
     right: 16,
     width: 46,
     height: 46,

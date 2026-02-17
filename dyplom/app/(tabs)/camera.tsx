@@ -26,17 +26,34 @@ export default function CameraScreen() {
 
   const takePhoto = async () => {
     if (!cameraRef.current) return;
-    const photo = await cameraRef.current.takePictureAsync();
-    router.push({ pathname: "/result", params: { uri: photo.uri } });
+
+    const photo = await cameraRef.current.takePictureAsync({
+      quality: 0.8,
+    });
+
+    router.push({
+      pathname: "/result",
+      params: { uri: photo.uri },
+    });
   };
 
   const pickImage = async () => {
+    // 🔹 запрос разрешения на галерею
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      alert("Potrzebne jest pozwolenie na galerię");
+      return;
+    }
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
+      allowsEditing: false,
+      quality: 0.8,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets?.length > 0) {
       router.push({
         pathname: "/result",
         params: { uri: result.assets[0].uri },
@@ -46,7 +63,7 @@ export default function CameraScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <CameraView key={Date.now()} ref={cameraRef} style={{ flex: 1 }} />
+      <CameraView ref={cameraRef} style={{ flex: 1 }} />
 
       <View style={styles.buttons}>
         <TouchableOpacity onPress={takePhoto} style={styles.captureButton}>
@@ -63,28 +80,36 @@ export default function CameraScreen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
+
   permissionsButton: {
     padding: 14,
     borderRadius: 10,
     backgroundColor: "#367BEB",
     marginTop: 16,
   },
+
   buttons: {
     position: "absolute",
     bottom: 30,
     width: "100%",
     alignItems: "center",
   },
+
   captureButton: {
     backgroundColor: "#000",
     padding: 16,
     borderRadius: 50,
     marginBottom: 10,
   },
+
   galleryButton: {
     backgroundColor: "#367BEB",
     padding: 14,
     borderRadius: 14,
   },
-  text: { color: "white", fontSize: 16 },
+
+  text: {
+    color: "white",
+    fontSize: 16,
+  },
 });

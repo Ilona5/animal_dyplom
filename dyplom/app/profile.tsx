@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -23,7 +24,6 @@ export default function ProfileScreen() {
   const [description, setDescription] = useState("");
   const [imageUri, setImageUri] = useState<string | null>(null);
 
-  // 🔹 ЗАГРУЗКА ПРОФИЛЯ ПРИ ВХОДЕ
   useFocusEffect(
     useCallback(() => {
       const loadProfile = async () => {
@@ -38,22 +38,21 @@ export default function ProfileScreen() {
       };
 
       loadProfile();
-    }, [])
+    }, []),
   );
 
-  // 🔹 ВЫБОР ФОТО
+  // 🔹 ВЫБОР ФОТО (Expo 54+)
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ["images"],
       quality: 0.8,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets?.length > 0) {
       setImageUri(result.assets[0].uri);
     }
   };
 
-  // 🔹 СОХРАНЕНИЕ
   const saveProfile = async () => {
     try {
       const profile = {
@@ -71,57 +70,63 @@ export default function ProfileScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.container}>
-          {/* HEADER */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={26} />
+    <SafeAreaView style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.container}>
+            {/* HEADER */}
+            <View style={styles.header}>
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="chevron-back" size={26} />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Profil pupila</Text>
+              <View style={{ width: 26 }} />
+            </View>
+
+            {/* IMAGE */}
+            <TouchableOpacity style={styles.imageBox} onPress={pickImage}>
+              {imageUri ? (
+                <Image
+                  source={{ uri: imageUri }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Text style={{ opacity: 0.5 }}>Dodaj zdjęcie</Text>
+              )}
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Profil pupila</Text>
-            <View style={{ width: 26 }} />
+
+            {/* INPUTS */}
+            <TextInput
+              placeholder="Imię"
+              style={styles.input}
+              value={name}
+              onChangeText={setName}
+            />
+            <TextInput
+              placeholder="Gatunek"
+              style={styles.input}
+              value={species}
+              onChangeText={setSpecies}
+            />
+            <TextInput
+              placeholder="Opis"
+              style={[styles.input, { height: 80 }]}
+              value={description}
+              onChangeText={setDescription}
+              multiline
+            />
+
+            <TouchableOpacity style={styles.saveButton} onPress={saveProfile}>
+              <Text style={styles.saveText}>Zapisz profil</Text>
+            </TouchableOpacity>
           </View>
-
-          {/* IMAGE */}
-          <TouchableOpacity style={styles.imageBox} onPress={pickImage}>
-            {imageUri ? (
-              <Image source={{ uri: imageUri }} style={styles.image} />
-            ) : (
-              <Text style={{ opacity: 0.5 }}>Dodaj zdjęcie</Text>
-            )}
-          </TouchableOpacity>
-
-          {/* INPUTS */}
-          <TextInput
-            placeholder="Imię"
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-          />
-          <TextInput
-            placeholder="Gatunek"
-            style={styles.input}
-            value={species}
-            onChangeText={setSpecies}
-          />
-          <TextInput
-            placeholder="Opis"
-            style={[styles.input, { height: 80 }]}
-            value={description}
-            onChangeText={setDescription}
-            multiline
-          />
-
-          <TouchableOpacity style={styles.saveButton} onPress={saveProfile}>
-            <Text style={styles.saveText}>Zapisz profil</Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -148,11 +153,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
+    overflow: "hidden",
   },
   image: {
     width: "100%",
     height: "100%",
-    borderRadius: 16,
   },
   input: {
     backgroundColor: "#fff",

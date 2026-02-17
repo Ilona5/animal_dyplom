@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { View, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import NeoButton from "./components/NeoButton";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "./firebase/firebaseConfig";
+import { db } from "../firebase/firebaseConfig";
 
 type RecognitionResult = {
   animal: string;
@@ -39,14 +39,19 @@ export default function ResultScreen() {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
 
+      if (!data?.animal) {
+        setError("Nie udało się rozpoznać zwierzęcia");
+        return;
+      }
+
       setResult({
         animal: data.animal,
-        confidence: data.confidence,
+        confidence: data.confidence ?? 0,
       });
     } catch (e) {
       setError("Błąd połączenia z serwerem");
@@ -54,16 +59,18 @@ export default function ResultScreen() {
       setLoading(false);
     }
   };
-const ANIMAL_MAP: Record<string, string> = {
-  kot: "cat",
-  krolik: "rabbit",
-  papuga: "parrot",
-};
+  const ANIMAL_MAP: Record<string, string> = {
+    kot: "cat",
+    krolik: "rabbit",
+    papuga: "parrot",
+  };
 
   const saveToHistory = async () => {
     if (!result || !uri) return;
 
-    const animalKey = ANIMAL_MAP[result.animal.toLowerCase()];
+  if (!result?.animal) return;
+
+  const animalKey = ANIMAL_MAP[result.animal.toLowerCase()];
 
     if (!animalKey) {
       console.log("Nieznany gatunek:", result.animal);
@@ -83,10 +90,11 @@ const ANIMAL_MAP: Record<string, string> = {
     }
   };
 
-const animalKey = result ? ANIMAL_MAP[result.animal.toLowerCase()] : null;
-
+  const animalKey = result?.animal
+    ? ANIMAL_MAP[result.animal.toLowerCase()]
+    : null;
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <Text style={styles.title}>Wynik rozpoznania</Text>
 
       {uri ? (
@@ -128,7 +136,7 @@ const animalKey = result ? ANIMAL_MAP[result.animal.toLowerCase()] : null;
       )}
 
       <NeoButton label="Powrót do Home" onPress={() => router.push("/")} />
-    </View>
+    </SafeAreaView>
   );
 }
 

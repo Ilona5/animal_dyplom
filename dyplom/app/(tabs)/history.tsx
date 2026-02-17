@@ -7,20 +7,20 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+//import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { db } from "../../firebase/firebaseConfig";
 
 type Item = {
   id: string;
-  animalId: string; // 🔑 ключ для animals.ts (cat, rabbit…)
-  label: string; // 🏷️ отображаемое имя
+  animalId: string;
+  label: string;
   confidence: number;
   imageUrl?: string;
   createdAt?: any;
 };
-
 
 export default function HistoryScreen() {
   const [items, setItems] = useState<Item[]>([]);
@@ -33,7 +33,7 @@ export default function HistoryScreen() {
         snap.docs.map((d) => ({
           id: d.id,
           ...(d.data() as Omit<Item, "id">),
-        }))
+        })),
       );
     });
 
@@ -62,11 +62,12 @@ export default function HistoryScreen() {
         )}
       </View>
 
-      <Ionicons name="chevron-forward" size={20} color="#9AA8B6" />
+      <Text style={{ fontSize: 20, color: "#9AA8B6" }}>›</Text>
     </TouchableOpacity>
   );
 
   return (
+    <SafeAreaView style={{ flex: 1 }}>
     <View style={styles.container}>
       <Text style={styles.header}>Historia rozpoznań</Text>
 
@@ -80,7 +81,7 @@ export default function HistoryScreen() {
           contentContainerStyle={{ paddingBottom: 24 }}
         />
       )}
-    </View>
+    </View></SafeAreaView>
   );
 }
 

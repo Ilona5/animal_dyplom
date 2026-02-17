@@ -1,8 +1,8 @@
 import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Image } from "react-native";
 import React from "react";
 
-export default function RootLayout() {
+export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
@@ -29,38 +29,69 @@ export default function RootLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={require("../../assets/images/icons/home.png")}
+              style={{
+                width: 22,
+                height: 22,
+                resizeMode: "contain",
+                tintColor: focused ? "#2B6CB0" : "#7F8A9A",
+              }}
+            />
           ),
         }}
       />
+
       <Tabs.Screen
         name="camera"
         options={{
           title: "Camera",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="camera-outline" size={size} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={require("../../assets/images/icons/camera.png")}
+              style={{
+                width: 22,
+                height: 22,
+                resizeMode: "contain",
+                tintColor: focused ? "#2B6CB0" : "#7F8A9A",
+              }}
+            />
           ),
         }}
       />
+
       <Tabs.Screen
         name="history"
         options={{
           title: "History",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="time-outline" size={size} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={require("../../assets/images/icons/history.png")}
+              style={{
+                width: 22,
+                height: 22,
+                resizeMode: "contain",
+                tintColor: focused ? "#2B6CB0" : "#7F8A9A",
+              }}
+            />
           ),
         }}
       />
+
       <Tabs.Screen
         name="info"
         options={{
           title: "Info",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="information-circle-outline"
-              size={size}
-              color={color}
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={require("../../assets/images/icons/info.png")}
+              style={{
+                width: 22,
+                height: 22,
+                resizeMode: "contain",
+                tintColor: focused ? "#2B6CB0" : "#7F8A9A",
+              }}
             />
           ),
         }}
